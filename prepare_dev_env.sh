@@ -79,6 +79,8 @@ bash rabbitmq/init.sh
 echo "Init RabbitMQ complete!"
 
 echo "Creating simple reverse proxy site..."
+
+mkdir nginx/sites
 cat << EOF > nginx/sites/${domain_name}.conf
 upstream 11b9509-6783478-bb37b70-f2617d0 {
         server ${internal_ip}:8989;
@@ -103,6 +105,7 @@ echo "Creating simple reverse proxy site complete!"
 echo "Your app should be listening on port 8989"
 
 echo "Creating self signed SSL certificate..."
+mkdir nginx/ssl
 openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout nginx/ssl/${domain_name}.key -out nginx/ssl/${domain_name}.crt
 echo "Creating self signed SSL certificate complete!"
 

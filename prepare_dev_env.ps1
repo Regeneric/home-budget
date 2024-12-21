@@ -70,6 +70,7 @@ Start-Process "docker-compose" -ArgumentList "-f $current_path/docker/docker-com
 & "$current_path/rabbitmq/init.sh"
 
 # Create Nginx reverse proxy configuration
+New-Item -Path 'nginx/sites' -ItemType Directory
 $nginxConfigPath = "$current_path/nginx/sites/${domain_name}.conf"
 $nginxConfig = @"
 upstream 11b9509-6783478-bb37b70-f2617d0 {
@@ -93,6 +94,7 @@ server {
 Set-Content -Path $nginxConfigPath -Value $nginxConfig
 
 # Create self-signed SSL certificate
+New-Item -Path 'nginx/ssl' -ItemType Directory
 $sslCmd = "openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout $current_path/ssl/private/$domain_name.key -out $current_path/ssl/certs/$domain_name.crt"
 Invoke-Expression $sslCmd
 

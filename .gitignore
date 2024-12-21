@@ -1,6 +1,14 @@
 docker/.env
+
 mariadb/*
+
 mongodb/data/*
 !mongodb/mongod.conf
 mongodb/backup/*
+
+nginx/*
+!nginx/nginx.conf
+
+bind9
+
 scratchpad.md
