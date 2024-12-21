@@ -1,0 +1,1 @@
+Run `prepare_dev_env` script and it'll setup everything with your input.

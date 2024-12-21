@@ -1,0 +1,13 @@
+$TTL 300
+@       IN     SOA    ns1.hb.internal. root.hb.internal. (
+                       ${current_date}00 ; serial
+                       300            ; refresh, seconds
+                       300            ; retry, seconds
+                       300            ; expire, seconds
+                       300 )          ; minimum TTL, seconds
+
+@       IN     NS     ns1.hb.internal.
+ns1     IN      A     192.168.1.44
+
+hb.internal     IN A 192.168.1.44;
+*.hb.internal   IN A 192.168.1.44;
