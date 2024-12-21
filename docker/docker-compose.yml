@@ -1,12 +1,13 @@
-version: '3.8'
+x-default_config: &default_config
+  network_mode: host
+  restart: always
+  env_file: ${ENV_FILE}
 
 services:
   mariadb:
     hostname: mariadb1
     container_name: mariadb
     image: mariadb:latest
-    network_mode: host
-    restart: always
     ports:
       - ${INTERNAL_IP}:3306:3306
     environment:
@@ -16,12 +17,11 @@ services:
       - ${CONFIG_FOLDER}/mariadb/data:/var/lib/mysql
       - ${CONFIG_FOLDER}/mariadb/backup:/maria_backup
     command: [ '--max_connections=10000' ]
+    <<: *default_config
   rabbitmq:
     hostname: rabbitmq1
     container_name: rabbitmq
     image: rabbitmq:3-management
-    network_mode: host
-    restart: always
     ports:
       - ${INTERNAL_IP}:5672:5672
       - ${INTERNAL_IP}:15672:15672
@@ -32,16 +32,38 @@ services:
       nofile:
         soft: 2000
         hard: 2000
+    <<: *default_config
   mongodb:
     hostname: mongo1
-    container_name: mongo
+    container_name: mongodb
     image: percona/percona-server-mongodb:6.0.14
-    network_mode: host
-    restart: always
     environment:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
     volumes:
       - ${CONFIG_FOLDER}/mongodb/data:/data/db
       - ${CONFIG_FOLDER}/mongodb/backup:/mongo_backup
     command: ["mongod", "--bind_ip", "127.0.0.1,${INTERNAL_IP}", "--port", "27017", "--directoryperdb", "--wiredTigerCacheSizeGB", "1", "--journal", "--keyFile=/data/db/keyFile"]
+    <<: *default_config
+  reverse_proxy:
+    hostname: nginx1
+    container_name: reverse_proxy
+    image: nginx:latest
+    volumes:
+      - ${NGINX_CONF_LOCATION}/nginx.conf:/etc/nginx/nginx.conf
+      - ${NGINX_CONF_LOCATION}/sites:/etc/nginx/sites-enabled
+      - ${NGINX_CONF_LOCATION}/ssl/hkk.crt:/etc/ssl/certs/hkk.crt
+      - ${NGINX_CONF_LOCATION}/ssl/hkk.key:/etc/ssl/private/hkk.key
+    command: ['nginx', '-g daemon off;']
+    <<: *default_config
+  bind9:
+    hostname: bind1
+    container_name: bind9
+    image: ubuntu/bind9:latest
+    volumes:
+      - ${BIND_CONF_LOCATION}/db.${DOMAIN_NAME}:/var/cache/bind/db.${DOMAIN_NAME}
+      - ${BIND_CONF_LOCATION}/named.conf:/etc/bind/named.conf
+      - ${BIND_CONF_LOCATION}/named.conf.access_network:/etc/bind/named.conf.access_network
+      - ${BIND_CONF_LOCATION}/named.conf.system_network:/etc/bind/named.conf.system_network
+      - ${BIND_CONF_LOCATION}/named.conf.options:/etc/bind/named.conf.options
+    <<: *default_config

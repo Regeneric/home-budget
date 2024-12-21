@@ -1,5 +1,6 @@
 docker/.env
-mariadb
-mongodb/data/keyFile
-mongodb/backup
+mariadb/*
+mongodb/data/*
+!mongodb/mongod.conf
+mongodb/backup/*
 scratchpad.md
