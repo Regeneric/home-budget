@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  mariadb:
+    hostname: mariadb1
+    container_name: mariadb
+    image: mariadb:latest
+    network_mode: host
+    restart: always
+    ports:
+      - ${INTERNAL_IP}:3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ${CONFIG_FOLDER}/mariadb:/docker-entrypoint-initdb.d
+      - ${CONFIG_FOLDER}/mariadb/data:/var/lib/mysql
+      - ${CONFIG_FOLDER}/mariadb/backup:/maria_backup
+    command: [ '--max_connections=10000' ]
+  rabbitmq:
+    hostname: rabbitmq1
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    network_mode: host
+    restart: always
+    ports:
+      - ${INTERNAL_IP}:5672:5672
+      - ${INTERNAL_IP}:15672:15672
+      - ${INTERNAL_IP}:15692:15692
+    environment:
+      RABBITMQ_LOG: debug,+color
+    ulimits:
+      nofile:
+        soft: 2000
+        hard: 2000
+  mongodb:
+    hostname: mongo1
+    container_name: mongo
+    image: percona/percona-server-mongodb:6.0.14
+    network_mode: host
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_ROOT_USERNAME: root
+    volumes:
+      - ${CONFIG_FOLDER}/mongodb/data:/data/db
+      - ${CONFIG_FOLDER}/mongodb/backup:/mongo_backup
+    command: ["mongod", "--bind_ip", "127.0.0.1,${INTERNAL_IP}", "--port", "27017", "--directoryperdb", "--wiredTigerCacheSizeGB", "1", "--journal", "--keyFile=/data/db/keyFile"]

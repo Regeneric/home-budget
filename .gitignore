@@ -1,0 +1,5 @@
+docker/.env
+mariadb
+mongodb/data/keyFile
+mongodb/backup
+scratchpad.md
