@@ -70,12 +70,16 @@ echo "Creating MongoDB keyFile complete!"
 docker-compose -f docker/docker-compose.yml up -d mariadb
 docker-compose -f docker/docker-compose.yml up -d mongodb
 
-bash mongodb/init.sh
+cd mongodb
+bash init.sh
+cd ..
 
 echo "Init RabbitMQ..."
 docker-compose -f docker/docker-compose.yml up -d rabbitmq
-chmod +x rabbitmq/init.sh
-bash rabbitmq/init.sh
+cd rabbitmq
+chmod +x init.sh
+bash init.sh
+cd ..
 echo "Init RabbitMQ complete!"
 
 echo "Creating simple reverse proxy site..."
