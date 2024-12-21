@@ -52,8 +52,8 @@ services:
     volumes:
       - ${NGINX_CONF_LOCATION}/nginx.conf:/etc/nginx/nginx.conf
       - ${NGINX_CONF_LOCATION}/sites:/etc/nginx/sites-enabled
-      - ${NGINX_CONF_LOCATION}/ssl/hkk.crt:/etc/ssl/certs/${DOMAIN_NAME}.crt
-      - ${NGINX_CONF_LOCATION}/ssl/hkk.key:/etc/ssl/private/${DOMAIN_NAME}.key
+      - ${NGINX_CONF_LOCATION}/ssl/${DOMAIN_NAME}.crt:/etc/ssl/certs/${DOMAIN_NAME}.crt
+      - ${NGINX_CONF_LOCATION}/ssl/${DOMAIN_NAME}.key:/etc/ssl/private/${DOMAIN_NAME}.key
     command: ['nginx', '-g daemon off;']
     <<: *default_config
   bind9:
