@@ -1,18 +1,20 @@
+bind9/db.*
+bind9/named.conf.access_network
+bind9/named.conf.system_network
+
 docker/.env
 
-mariadb/schemas/*.sql
 mariadb/data/*
 mariadb/backup/*
 
 mongodb/data/*
 mongodb/backup/*
+mongodb/init/create_root.js
+mongodb/init/create_temp_admin.js
+mongodb/init/setup_replicaset.js
 !mongodb/data/mongod.conf
 
 nginx/*
 !nginx/nginx.conf
-
-bind9/db.*
-bind9/named.conf.access_network
-bind9/named.conf.system_network
 
 scratchpad.md

@@ -1,9 +1,6 @@
 #!/bin/bash
 
-ENV_FILE=../docker/.env
-
-AMQP_USER="$(grep 'AMQP_USER=' "$ENV_FILE" | cut -d '=' -f2)"
-AMQP_PASS="$(grep 'AMQP_PASS=' "$ENV_FILE" | cut -d '=' -f2)"
+source ../docker/.env
 
 echo "AMQP Installation"
 echo "Add user $AMQP_USER"
