@@ -142,9 +142,9 @@ ${domain_name}      IN A ${internal_ip};
 EOF
 
 cat << EOF > bind9/named.conf.access_network
-zone "${domain}" IN {
+zone "${domain_name}" IN {
     type master;
-    file "${domain}";
+    file "${zone_name}";
     allow-update { none; };
 };
 EOF
