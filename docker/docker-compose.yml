@@ -8,6 +8,8 @@ services:
     hostname: mariadb1
     container_name: mariadb
     image: mariadb:latest
+    restart: always
+    env_file: ${ENV_FILE}
     ports:
       - ${INTERNAL_IP}:3306:3306
     environment:
@@ -17,11 +19,12 @@ services:
       - ${CONFIG_FOLDER}/mariadb/data:/var/lib/mysql
       - ${CONFIG_FOLDER}/mariadb/backup:/maria_backup
     command: [ '--max_connections=10000' ]
-    <<: *default_config
   rabbitmq:
     hostname: rabbitmq1
     container_name: rabbitmq
     image: rabbitmq:3-management
+    restart: always
+    env_file: ${ENV_FILE}
     ports:
       - ${INTERNAL_IP}:5672:5672
       - ${INTERNAL_IP}:15672:15672
@@ -32,7 +35,6 @@ services:
       nofile:
         soft: 2000
         hard: 2000
-    <<: *default_config
   mongodb:
     hostname: mongo1
     container_name: mongodb
