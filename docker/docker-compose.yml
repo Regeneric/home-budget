@@ -64,6 +64,6 @@ services:
       - ${BIND_CONF_LOCATION}/db.${DOMAIN_NAME}:/var/cache/bind/db.${DOMAIN_NAME}
       - ${BIND_CONF_LOCATION}/named.conf:/etc/bind/named.conf
       - ${BIND_CONF_LOCATION}/named.conf.access_network:/etc/bind/named.conf.access_network
-      - ${BIND_CONF_LOCATION}/named.conf.system_network:/etc/bind/named.conf.system_network
+      # - ${BIND_CONF_LOCATION}/named.conf.system_network:/etc/bind/named.conf.system_network
       - ${BIND_CONF_LOCATION}/named.conf.options:/etc/bind/named.conf.options
     <<: *default_config

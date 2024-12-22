@@ -140,6 +140,14 @@ ns1     IN      A     ${internal_ip}
 ${domain_name}      IN A ${internal_ip};
 *.${domain_name}    IN A ${internal_ip};
 EOF
+
+cat << EOF > bind9/named.conf.access_network
+zone "${domain}" IN {
+    type master;
+    file "${domain}";
+    allow-update { none; };
+};
+EOF
 echo "Creating simple local DNS zone complete!"
 
 docker rm -f bind9

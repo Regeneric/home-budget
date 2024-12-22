@@ -1,14 +1,17 @@
 docker/.env
 
-mariadb/*
+mariadb/data/*
+mariadb/backup/*
 
 mongodb/data/*
-!mongodb/mongod.conf
 mongodb/backup/*
+!mongodb/data/mongod.conf
 
 nginx/*
 !nginx/nginx.conf
 
-bind9
+bind9/db.*
+bind9/named.conf.access_network
+bind9/named.conf.system_network
 
 scratchpad.md
