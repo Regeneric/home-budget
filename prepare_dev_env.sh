@@ -68,6 +68,8 @@ sudo chown -R 1001:1000 mongodb/backup
 sudo chmod 400 mongodb/data/keyFile
 echo "Creating MongoDB keyFile complete!"
 
+mkdir -p mariadb/data
+mkdir mariadb/backup
 docker rm -f mariadb
 docker-compose -f docker/docker-compose.yml up -d mariadb
 
