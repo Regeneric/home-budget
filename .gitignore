@@ -1,5 +1,6 @@
 docker/.env
 
+mariadb/schemas/*.sql
 mariadb/data/*
 mariadb/backup/*
 

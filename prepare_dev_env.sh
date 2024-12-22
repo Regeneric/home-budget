@@ -70,6 +70,7 @@ echo "Creating MongoDB keyFile complete!"
 
 mkdir -p mariadb/data
 mkdir mariadb/backup
+mkdir mariadb/schemas
 docker rm -f mariadb
 docker-compose -f docker/docker-compose.yml up -d mariadb
 
