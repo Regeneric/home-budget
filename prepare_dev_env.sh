@@ -61,13 +61,16 @@ echo "Creating Docker .env file complete!"
 echo "Creating MongoDB keyFile..."
 chmod +x mongodb/init.sh
 openssl rand -base64 756 > mongodb/data/keyFile
-chown $(whoami):$(whoami) mongodb/init.sh
-chown -R 1001:1000 mongodb/data
-chown -R 1001:1000 mongodb/backup
-chmod 400 mongodb/data/keyFile
+sudo chown $(whoami):$(whoami) mongodb/init.sh
+sudo chown -R 1001:1000 mongodb/data
+sudo chown -R 1001:1000 mongodb/backup
+sudo chmod 400 mongodb/data/keyFile
 echo "Creating MongoDB keyFile complete!"
 
+docker rm -f mariadb
 docker-compose -f docker/docker-compose.yml up -d mariadb
+
+docker rm -f mongodb
 docker-compose -f docker/docker-compose.yml up -d mongodb
 
 cd mongodb
@@ -113,6 +116,7 @@ mkdir nginx/ssl
 openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout nginx/ssl/${domain_name}.key -out nginx/ssl/${domain_name}.crt
 echo "Creating self signed SSL certificate complete!"
 
+docker rm -f reverse_proxy
 docker-compose -f docker/docker-compose.yml up -d reverse_proxy
 
 current_date=$(date +%Y%m%d)
@@ -135,4 +139,5 @@ ${domain_name}      IN A ${internal_ip};
 EOF
 echo "Creating simple local DNS zone complete!"
 
+docker rm -f bind9
 docker-compose -f docker/docker-compose.yml up -d bind9
