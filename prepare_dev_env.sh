@@ -124,7 +124,7 @@ docker-compose -f docker/docker-compose.yml up -d reverse_proxy
 
 current_date=$(date +%Y%m%d)
 echo "Creating simple local DNS zone..."
-zone_name="db.${domain_name}"
+zone_name="db.$domain_name"
 cat << EOF > bind9/${domain_name}
 \$TTL 300
 @       IN     SOA    ns1.${domain_name}. root.${domain_name}. (
