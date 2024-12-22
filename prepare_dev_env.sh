@@ -27,7 +27,7 @@ ENV_FILE=.env
 CONFIG_FOLDER=${current_path%/setup}
 NGINX_CONF_LOCATION=${current_path%/setup}/nginx
 BIND_CONF_LOCATION=${current_path%/setup}/bind9
-SOURCE_CODE_LOCATION=${source_code_location}
+SOURCE_CODE_LOCATION=${current_path%/setup}/${source_code_location}
 
 DOMAIN_NAME=${domain_name}
 
@@ -61,6 +61,7 @@ echo "Creating Docker .env file complete!"
 echo "Creating MongoDB keyFile..."
 chmod +x mongodb/init.sh
 openssl rand -base64 756 > mongodb/data/keyFile
+mkdir mongodb/backup
 sudo chown $(whoami):$(whoami) mongodb/init.sh
 sudo chown -R 1001:1000 mongodb/data
 sudo chown -R 1001:1000 mongodb/backup
