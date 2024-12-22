@@ -2,10 +2,14 @@ include docker/.env
 export
 
 
-.PHONY: mariadb stop_mariadb restart_mariadb delete_mariadb recreate_mariadb \
+.PHONY: dev_env mariadb stop_mariadb restart_mariadb delete_mariadb recreate_mariadb \
         create_sql_db drop_sql_db migrate_sql_up migrate_sql_down all_sql_setup \
         mongodb stop_mongodb restart_mongodb delete_mongodb init_mongodb \
         recreate_mongodb create_nosql_db drop_nosql_db
+
+
+dev_env:
+	bash prepare_dev_env.sh
 
 
 mariadb:

@@ -2,12 +2,12 @@
 
 read -p "Source code location: "                    source_code_location
 read -p "Enter domain name: "                       domain_name
-read -p "Enter internal IP (eg. 192.168.1.1): "     internal_ip
+read -p "Enter internal IP (eg. 192.168.1.5): "     internal_ip
 read -p "Enter internal IP mask (eg. 24): "         internal_mask
-read -p "Enter external IP (eg. 192.168.1.1): "     external_ip
+read -p "Enter external IP (eg. 192.168.1.5): "     external_ip
 read -p "Enter external IP mask (eg. 24): "         external_mask
-read -p "Enter database host (eg. 192.168.1.1): "   db_host
-read -p "Enter AMQP host (eg. 192.168.1.1): "       amqp_host
+read -p "Enter database host (eg. 192.168.1.5): "   db_host
+read -p "Enter AMQP host (eg. 192.168.1.5): "       amqp_host
 
 read -s -p "Enter MySQL root password: "            mysql_root_password
 echo ""
@@ -98,7 +98,7 @@ db.createUser({
 });
 EOF
 
-cat << EOF > mongodb/init/create_root.js
+cat << EOF > mongodb/init/setup_replicaset.js
 rs.initiate({
     _id: "mongoreplicaset1",
     version: 1,
