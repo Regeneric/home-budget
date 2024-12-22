@@ -72,13 +72,16 @@ docker-compose -f docker/docker-compose.yml up -d mariadb
 
 docker rm -f mongodb
 docker-compose -f docker/docker-compose.yml up -d mongodb
+sleep 5
 
 cd mongodb
 bash init.sh
 cd ..
 
 echo "Init RabbitMQ..."
+docker rm -f rabbitmq
 docker-compose -f docker/docker-compose.yml up -d rabbitmq
+sleep 5
 cd rabbitmq
 chmod +x init.sh
 bash init.sh
