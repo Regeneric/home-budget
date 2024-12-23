@@ -25,6 +25,15 @@ echo "Creating Docker .env file..."
 
 current_path=$(pwd)
 
+if [[ -f "docker/.env" ]]; then
+    # We want Y/N only
+    answer=-1
+    while [[ ! ${answer,,} =~ ^y(es)?$ && ! ${answer,,} =~ ^n(o)?$ ]]; do
+      read -p "Do you want to delete current docker/.env file? (Y/N): " answer
+    done
+    if [[ ${answer,,} =~ ^y(es)?$ ]]; then rm -f docker/.env; fi
+fi
+
 cat << EOF > docker/.env
 ENV_FILE=.env
 

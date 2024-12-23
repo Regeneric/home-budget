@@ -4,6 +4,9 @@ bind9/named.conf.system_network
 
 docker/.env
 
+go/.env
+go/.envrc
+
 mariadb/data/*
 mariadb/backup/*
 
