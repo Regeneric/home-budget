@@ -80,6 +80,22 @@ if [[ ! -d "mongodb/init" ]]; then mkdir -p mongodb/init; fi
 if [[ ! -d "mongodb/data" ]]; then mkdir -p mongodb/data; fi
 if [[ ! -d "mognodb/backup" ]]; then mkdir -p mongodb/backup; fi
 
+cat << EOF > mongodb/data/mongod.conf
+storage:
+  directoryPerDB: true
+  journal:
+    enabled: true
+  wiredTiger:
+    engineConfig:
+      cacheSizeGB: 1
+security:
+  authorization: enabled
+  keyFile: /data/db/keyFile
+net:
+  port: 27017
+  bindIp: 127.0.0.1,${internal_ip}
+EOF
+
 openssl rand -base64 756 > mongodb/data/keyFile
 
 sudo chown $(whoami):$(whoami) mongodb/init.sh
@@ -114,22 +130,6 @@ rs.initiate({
     version: 1,
     members: [{ _id: 0, host : "mongo-mongo1.${domain_name}:27017"}]
 });
-EOF
-
-cat << EOF > mongodb/data/mongod.conf
-storage:
-  directoryPerDB: true
-  journal:
-    enabled: true
-  wiredTiger:
-    engineConfig:
-      cacheSizeGB: 1
-security:
-  authorization: enabled
-  keyFile: /data/db/keyFile
-net:
-  port: 27017
-  bindIp: 127.0.0.1,${internal_ip}
 EOF
 
 if [[ ! -d "mariadb/data" ]]; then mkdir -p mariadb/data; fi
