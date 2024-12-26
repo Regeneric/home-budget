@@ -15,7 +15,6 @@ mongodb/backup/*
 mongodb/init/create_root.js
 mongodb/init/create_temp_admin.js
 mongodb/init/setup_replicaset.js
-!mongodb/data/mongod.conf
 
 nginx/*
 !nginx/nginx.conf

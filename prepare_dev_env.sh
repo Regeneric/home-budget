@@ -76,14 +76,15 @@ echo "Creating Docker .env file complete!"
 
 echo "Creating MongoDB keyFile..."
 
-if [[ ! -d "mongodb/data" ]];   then mkdir -p mongodb/data; fi
+if [[ ! -d "mongodb/init" ]]; then mkdir -p mongodb/init; fi
+if [[ ! -d "mongodb/data" ]]; then mkdir -p mongodb/data; fi
 if [[ ! -d "mognodb/backup" ]]; then mkdir -p mongodb/backup; fi
 
 openssl rand -base64 756 > mongodb/data/keyFile
 
 sudo chown $(whoami):$(whoami) mongodb/init.sh
-sudo chown -R 1001:1000 mongodb/data
-sudo chown -R 1001:1000 mongodb/backup
+sudo chown -R 1001:$(whoami) mongodb/data
+sudo chown -R 1001:$(whoami) mongodb/backup
 sudo chmod 400 mongodb/data/keyFile
 
 echo "Creating MongoDB keyFile complete!"
@@ -92,7 +93,7 @@ echo "Creating MongoDB keyFile complete!"
 echo "Initialising databases..."
 
 cat << EOF > mongodb/init/create_temp_admin.js
-db.createUser({ 
+db.createUser({
     user: 'admin',
     pwd: '${mongo_root_password}',
     roles: [{role: 'root', db: 'admin'}]
@@ -115,23 +116,43 @@ rs.initiate({
 });
 EOF
 
+cat << EOF > mongodb/data/mongod.conf
+storage:
+  directoryPerDB: true
+  journal:
+    enabled: true
+  wiredTiger:
+    engineConfig:
+      cacheSizeGB: 1
+security:
+  authorization: enabled
+  keyFile: /data/db/keyFile
+net:
+  port: 27017
+  bindIp: 127.0.0.1,${internal_ip}
+EOF
 
-if [[ ! -d "mariadb/data" ]];  then mkdir -p mariadb/data; fi
-if [[ ! -d "mariadb/backup"]]; then mkdir -p mariadb/backup; fi
+if [[ ! -d "mariadb/data" ]]; then mkdir -p mariadb/data; fi
+if [[ ! -d "mariadb/backup" ]]; then mkdir -p mariadb/backup; fi
 if [[ ! -d "mariadb/migration" ]]; then mkdir -p mariadb/migration; fi
 
-if [[ "$(docker ps -aqf name=mariadb)" ]]; then 
+if [[ "$(docker ps -aqf name=mariadb)" ]]; then
     docker rm -f mariadb
     docker-compose -f docker/docker-compose.yml up -d mariadb
-    sleep 5
+else
+    docker-compose -f docker/docker-compose.yml up -d mariadb
 fi
 
-if [[ "$(docker ps -aqf name=mongodb)" ]]; then 
+sleep 5
+
+if [[ "$(docker ps -aqf name=mongodb)" ]]; then
     docker rm -f mongodb
     docker-compose -f docker/docker-compose.yml up -d mongodb
-    sleep 5
+else
+    docker-compose -f docker/docker-compose.yml up -d mongodb
 fi
 
+sleep 15
 cd mongodb
 chmod +x init.sh
 bash init.sh
@@ -142,12 +163,14 @@ echo "Initialising databases complete!"
 
 echo "Init RabbitMQ..."
 
-if [[ "$(docker ps -aqf name=rabbitmq)" ]]; then 
+if [[ "$(docker ps -aqf name=rabbitmq)" ]]; then
     docker rm -f rabbitmq
     docker-compose -f docker/docker-compose.yml up -d rabbitmq
-    sleep 5
+else
+    docker-compose -f docker/docker-compose.yml up -d rabbitmq
 fi
 
+sleep 15
 cd rabbitmq
 chmod +x init.sh
 bash init.sh
@@ -189,10 +212,11 @@ echo "Creating self signed SSL certificate..."
 if [[ ! -d "nginx/ssl" ]]; then mkdir -p nginx/ssl; fi
 openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout nginx/ssl/${domain_name}.key -out nginx/ssl/${domain_name}.crt
 
-if [[ "$(docker ps -aqf name=reverse_proxy)" ]]; then 
+if [[ "$(docker ps -aqf name=reverse_proxy)" ]]; then
     docker rm -f reverse_proxy
     docker-compose -f docker/docker-compose.yml up -d reverse_proxy
-    sleep 5
+else
+    docker-compose -f docker/docker-compose.yml up -d reverse_proxy
 fi
 
 echo "Creating self signed SSL certificate complete!"
@@ -227,10 +251,15 @@ zone "${domain_name}" IN {
 };
 EOF
 
-if [[ "$(docker ps -aqf name=bind9)" ]]; then 
+if [[ "$(docker ps -aqf name=bind9)" ]]; then
     docker rm -f bind9
     docker-compose -f docker/docker-compose.yml up -d bind9
-    sleep 5
+else
+    docker-compose -f docker/docker-compose.yml up -d bind9
 fi
 
+sleep 5
+
 echo "Creating simple local DNS zone complete!"
+echo "****************************************"
+echo "Default port of the nginx site is :8989"
