@@ -31,7 +31,8 @@ if [[ -f "docker/.env" ]]; then
     while [[ ! ${answer,,} =~ ^y(es)?$ && ! ${answer,,} =~ ^n(o)?$ ]]; do
       read -p "Do you want to delete current docker/.env file? (Y/N): " answer
     done
-    if [[ ${answer,,} =~ ^y(es)?$ ]]; then rm -f docker/.env; fi
+    if [[ ${answer,,} =~ ^y(es)?$ ]]; then rm -f docker/.env
+    else exit 0; fi
 fi
 
 cat << EOF > docker/.env

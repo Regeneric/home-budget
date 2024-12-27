@@ -3,26 +3,32 @@
 current_path=$(pwd)
 root_path=${current_path%/scripts}
 
-if ! direnv --version; then echo "direnv must be installed first!"; exit
+if ! direnv --version; then echo "direnv must be installed first!"; exit 1
 else
-    case $SHELL in
-        '/bin/zsh')
-            echo 'eval "$(direnv hook zsh)"' >> $HOME/.zshrc
-            zsh -c "source $HOME/.zshrc"
-        ;;
-        '/bin/bash')
-            echo 'eval "$(direnv hook bash)"' >> $HOME/.bashrc
-            bash -c "source $HOME/.bashrc"
-        ;;
-        '/bin/tcsh')
-            echo 'eval `direnv hook tcsh`' >> $HOME/.cshrc
-            tcsh -c "source $HOME/.cshrc"
-        ;;
-        '/bin/fish')
-            echo 'direnv hook fish | source' >> $HOME/.config/fish.config
-            fish -c "source $HOME/.config/fish.config"
-        ;;
-    esac
+    if [[ $DIRENV_SET -ne 1 ]]; then
+        case $SHELL in
+            '/bin/zsh')
+                echo 'eval "$(direnv hook zsh)"' >> $HOME/.zshrc
+                echo 'export DIRENV_SET=1' >> $HOME/.zshrc
+                zsh -c "source $HOME/.zshrc"
+            ;;
+            '/bin/bash')
+                echo 'eval "$(direnv hook bash)"' >> $HOME/.bashrc
+                echo 'export DIRENV_SET=1' >> $HOME/.bashrc
+                bash -c "source $HOME/.bashrc"
+            ;;
+            '/bin/tcsh')
+                echo 'eval `direnv hook tcsh`' >> $HOME/.cshrc
+                echo 'export DIRENV_SET=1' >> $HOME/.cshrc
+                tcsh -c "source $HOME/.cshrc"
+            ;;
+            '/bin/fish')
+                echo 'direnv hook fish | source' >> $HOME/.config/fish.config
+                echo 'set -x DIRENV_SET 1' >> $HOME/.config/fish.config
+                fish -c "source $HOME/.config/fish.config"
+            ;;
+        esac
+    fi
 fi
 
 if [[ -f "${root_path}/.envrc" ]]; then
@@ -31,7 +37,8 @@ if [[ -f "${root_path}/.envrc" ]]; then
     while [[ ! ${answer,,} =~ ^y(es)?$ && ! ${answer,,} =~ ^n(o)?$ ]]; do
       read -p "Do you want to delete current .envrc file? (Y/N): " answer
     done
-    if [[ ${answer,,} =~ ^y(es)?$ ]]; then rm -f "${root_path}/.envrc"; fi
+    if [[ ${answer,,} =~ ^y(es)?$ ]]; then rm -f "${root_path}/.envrc"
+    else exit 0; fi
 fi
 
 
