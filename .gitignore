@@ -12,9 +12,9 @@ mariadb/backup/*
 
 mongodb/data/*
 mongodb/backup/*
-mongodb/init/create_root.js
-mongodb/init/create_temp_admin.js
-mongodb/init/setup_replicaset.js
+mongodb/init/*
+mongodb/create_role.js
+mongodb/init/grant_role.js
 
 nginx/*
 !nginx/nginx.conf
