@@ -2,14 +2,16 @@ include docker/.env
 export
 
 
-.PHONY: dev_env mariadb stop_mariadb restart_mariadb delete_mariadb recreate_mariadb \
-        create_sql_db drop_sql_db migrate_sql_up migrate_sql_down all_sql_setup \
-        mongodb stop_mongodb restart_mongodb delete_mongodb init_mongodb \
-        recreate_mongodb create_nosql_db drop_nosql_db
+.PHONY: dev_env \
+		mariadb stop_mariadb restart_mariadb delete_mariadb recreate_mariadb init_mariadb \
+        mongodb stop_mongodb restart_mongodb delete_mongodb recreate_mongodb init_mongodb \
+		rabbit  stop_rabbit  restart_rabbit  delete_rabbit  recreate_rabbit  init_rabbit  \
+        proxy	stop_proxy	 restart_proxy	 delete_proxy	recreate_proxy	 init_proxy   \
+		bind	stop_bind	 restart_bind	 delete_bind	recreate_bind	 init_bind	  \
 
 
 dev_env:
-	bash prepare_dev_env.sh
+	. prepare_dev_env.sh
 
 
 mariadb:
@@ -27,20 +29,8 @@ delete_mariadb:
 recreate_mariadb:
 	docker rm -f mariadb && sleep 5 && mariadb
 
-create_sql_db:
-	docker exec mariadb mariadb -u${DB_USER} -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE budget_app;"
-
-drop_sql_db:
-	docker exec mariadb mariadb -u${DB_USER} -p${MYSQL_ROOT_PASSWORD} -e "DROP DATABASE budget_app;"
-
-migrate_sql_up:
-	migrate -path mariadb/migration -database "mysql://${DB_USER}:${MYSQL_ROOT_PASSWORD}@tcp(${DB_HOST}:${DB_PORT})/budget_app" -verbose up
-
-migrate_sql_down:
-	migrate -path mariadb/migration -database "mysql://${DB_USER}:${MYSQL_ROOT_PASSWORD}@tcp(${DB_HOST}:${DB_PORT})/budget_app" -verbose down
-
-all_sql_setup:
-	mariadb create_sql_db migrate_sql_up
+init_mariadb:
+	cd mariadb && bash init.sh && cd ..
 
 
 mongodb:
@@ -55,14 +45,8 @@ restart_mongodb:
 delete_mongodb:
 	docker rm -f mongodb
 
-init_mongodb:
-	cd mongo && bash init.sh && cd ..
-	
 recreate_mongodb:
 	docker rm -f mongodb && sleep 5 && mongodb
 
-create_nosql_db:
-	docker exec mongodb mongosh -u ${MONGO_INITDB_ROOT_USERNAME} -p ${MONGO_INITDB_ROOT_PASSWORD} --authenticationDatabase ${MONGO_INITDB_DATABASE} --eval "use budget_app;"
-
-drop_nosql_db:
-	docker exec mongodb mongosh -u ${MONGO_INITDB_ROOT_USERNAME} -p ${MONGO_INITDB_ROOT_PASSWORD} --authenticationDatabase ${MONGO_INITDB_DATABASE} --eval "use budget_app; db.dropDatabase();"
+init_mongodb:
+	cd mongo && bash init.sh && cd ..
