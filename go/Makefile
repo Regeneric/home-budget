@@ -3,4 +3,4 @@ api:
 	go run cmd/api/*.go
 
 envrc:
-	bash scripts/prepare_envrc.sh
+	. scripts/prepare_envrc.sh

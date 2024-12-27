@@ -3,7 +3,27 @@
 current_path=$(pwd)
 root_path=${current_path%/scripts}
 
-if ! direnv --version; then echo "direnv must be installed first!"; fi
+if ! direnv --version; then echo "direnv must be installed first!"; exit
+else
+    case $SHELL in
+        '/bin/zsh')
+            echo 'eval "$(direnv hook zsh)"' >> $HOME/.zshrc
+            zsh -c "source $HOME/.zshrc"
+        ;;
+        '/bin/bash')
+            echo 'eval "$(direnv hook bash)"' >> $HOME/.bashrc
+            bash -c "source $HOME/.bashrc"
+        ;;
+        '/bin/tcsh')
+            echo 'eval `direnv hook tcsh`' >> $HOME/.cshrc
+            tcsh -c "source $HOME/.cshrc"
+        ;;
+        '/bin/fish')
+            echo 'direnv hook fish | source' >> $HOME/.config/fish.config
+            fish -c "source $HOME/.config/fish.config"
+        ;;
+    esac
+fi
 
 if [[ -f "${root_path}/.envrc" ]]; then
     # We want Y/N only
