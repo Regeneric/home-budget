@@ -58,21 +58,21 @@ read -p "SQL_MAX_IDLE_TIME (string): "  sql_max_idle_time
 
 
 cat << EOF > "${root_path}/.envrc"
-APP_HOST="${app_host}"
-APP_PORT="${app_port}"
+export APP_HOST="${app_host}"
+export APP_PORT="${app_port}"
 
-SQL_USER="${sql_user}"
-SQL_PASS="${sql_pass}"
-SQL_HOST="${sql_host}"
-SQL_PORT="${sql_port}"
-SQL_DB_NAME="${sql_db_name}"
+export SQL_USER="${sql_user}"
+export SQL_PASS="${sql_pass}"
+export SQL_HOST="${sql_host}"
+export SQL_PORT="${sql_port}"
+export SQL_DB_NAME="${sql_db_name}"
 
 export APP_ADDRESS="\${APP_HOST}:\${APP_PORT}"
-export SQL_ADDRESS="mysql://\${SQL_USER}:\${SQL_PASS}@tcp(\${SQL_HOST}:\${SQL_PORT})/\${SQL_DB_NAME}"
+export SQL_ADDRESS="\${SQL_USER}:\${SQL_PASS}@tcp(\${SQL_HOST}:\${SQL_PORT})/\${SQL_DB_NAME}"
 
 export SQL_MAX_OPEN_CONNS="${sql_max_open_conns}"
 export SQL_MAX_IDLE_CONNS="${sql_max_idle_conns}"
-export SQL_MAX_IDLE_TIME="${sql_max_idle_time}"
+export SQL_MAX_IDLE_TIME="${sql_max_idle_time}s"
 EOF
 
 
