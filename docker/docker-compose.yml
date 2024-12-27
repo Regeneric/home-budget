@@ -13,7 +13,7 @@ services:
     ports:
       - ${INTERNAL_IP}:3306:3306
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${SQL_ROOT_PASS}
     volumes:
       - ${CONFIG_FOLDER}/mariadb:/docker-entrypoint-initdb.d
       - ${CONFIG_FOLDER}/mariadb/data:/var/lib/mysql
@@ -40,8 +40,8 @@ services:
     container_name: mongodb
     image: percona/percona-server-mongodb:6.0.14
     environment:
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASS}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
     volumes:
       - ${CONFIG_FOLDER}/mongodb/data:/data/db
       - ${CONFIG_FOLDER}/mongodb/backup:/mongo_backup

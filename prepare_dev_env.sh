@@ -1,30 +1,5 @@
 #!/bin/bash
 
-read -p "Source code location: "                    source_code_location
-read -p "Enter domain name: "                       domain_name
-read -p "Enter internal IP (eg. 192.168.1.5): "     internal_ip
-read -p "Enter internal IP mask (eg. 24): "         internal_mask
-read -p "Enter external IP (eg. 192.168.1.5): "     external_ip
-read -p "Enter external IP mask (eg. 24): "         external_mask
-read -p "Enter database host (eg. 192.168.1.5): "   db_host
-read -p "Enter AMQP host (eg. 192.168.1.5): "       amqp_host
-
-read -s -p "Enter MySQL root password: "            mysql_root_password
-echo ""
-read -s -p "Enter MongoDB root password: "          mongo_root_password
-echo ""
-read -s -p "Enter RabbitMQ password: "              rabbitmq_password
-echo ""
-read -s -p "Enter database user password: "         db_user_pass
-echo ""
-read -s -p "Enter AMQP password: "                  amqp_pass
-echo ""
-
-
-echo "Creating Docker .env file..."
-
-current_path=$(pwd)
-
 if [[ -f "docker/.env" ]]; then
     # We want Y/N only
     answer=-1
@@ -35,6 +10,48 @@ if [[ -f "docker/.env" ]]; then
     else exit 0; fi
 fi
 
+read -p "Source code location: "                source_code_location
+read -p "Enter domain name: "                   domain_name
+
+read -p "Enter internal IP (eg. 192.168.1.5): " internal_ip
+read -p "Enter internal IP mask (eg. 24): "     internal_mask
+
+read -p "Enter external IP (eg. 192.168.1.5): " external_ip
+read -p "Enter external IP mask (eg. 24): "     external_mask
+
+# We want Y/N only
+answer=-1
+while [[ ! ${answer,,} =~ ^y(es)?$ && ! ${answer,,} =~ ^n(o)?$ ]]; do
+    read -p "Would you like to run services on the internal IP? (Y/N): " answer
+done
+if [[ ${answer,,} =~ ^y(es)?$ ]]; then
+    sql_host=$internal_ip
+    mongo_host=$internal_ip
+    rabbit_host=$internal_ip
+else
+    read -p "Enter MariaDB host (eg. 192.168.1.5): "  sql_host
+    read -p "Enter MongoDB host (eg. 192.168.1.5): "  mongo_host
+    read -p "Enter RabbitMQ host (eg. 192.168.1.5): " rabbit_host
+fi
+
+read -s -p "Enter MariaDB root password: "  mysql_root_password
+echo ""
+read -s -p "Enter MariaDB user password: "  mysql_user_password
+echo ""
+
+read -s -p "Enter MongoDB root password: "  mongo_root_password
+echo ""
+read -s -p "Enter MongoDB user password: "  mongo_user_password
+echo ""
+
+read -s -p "Enter RabbitMQ root password: " rabbitmq_root_password
+echo ""
+read -s -p "Enter RabbitMQ user password: " rabbitmq_user_password
+
+
+echo "Creating Docker .env file..."
+
+current_path=$(pwd)
 cat << EOF > docker/.env
 ENV_FILE=.env
 
@@ -51,25 +68,25 @@ INTERNAL_MASK=${internal_mask}
 EXTERNAL_IP=${external_ip}
 EXTERNAL_MASK=${external_mask}
 
-MYSQL_ROOT_PASSWORD=${mysql_root_password}
+SQL_USER=root
+SQL_PASS=${mysql_user_password}
+SQL_ROOT_PASS=${mysql_root_password}
+SQL_HOST=${sql_host}
+SQL_PORT=3306
 
+MONGO_USER=root
+MONGO_PASS=${mongo_user_password}
+MONGO_ROOT_PASS=${mongo_root_password}
+MONGO_HOST=${mongo_host}
+MONGO_PORT=27017
+MONGO_REPL_SET_NAME=mongoreplicaset1
 MONGO_INITDB_USER=admin
-MONGO_INITDB_DATABASE=admin
-MONGO_INITDB_ROOT_USERNAME=root
-MONGO_INITDB_ROOT_PASSWORD=${mongo_root_password}
-REPL_SET_NAME=mongoreplicaset1
+MONGO_INITDB_NAME=admin
 
-RABBITMQ_USER=root
-RABBITMQ_PASSWORD=${rabbitmq_password}
-
-DB_USER=root
-DB_PASS=${mysql_root_password}
-DB_HOST=${db_host}
-DB_PORT=3306
-
-AMQP_HOST=${amqp_host}
-AMQP_USER=root
-AMQP_PASS=${amqp_pass}
+RABBIT_USER=root
+RABBIT_PASS=${rabbitmq_user_password}
+RABBIT_ROOT_PASS=${rabbitmq_root_password}
+RABBIT_HOST=${rabbit_host}
 EOF
 
 echo "Creating Docker .env file complete!"
@@ -112,7 +129,7 @@ echo "Initialising databases..."
 cat << EOF > mongodb/init/create_temp_admin.js
 db.createUser({
     user: 'admin',
-    pwd: '${mongo_root_password}',
+    pwd: '${mongo_user_password}',
     roles: [{role: 'root', db: 'admin'}]
 });
 EOF
