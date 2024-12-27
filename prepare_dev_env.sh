@@ -36,18 +36,19 @@ fi
 
 read -s -p "Enter MariaDB root password: "  mysql_root_password
 echo ""
+read -p    "Enter MariaDB user name: "      mysql_user_name
 read -s -p "Enter MariaDB user password: "  mysql_user_password
 echo ""
 
 read -s -p "Enter MongoDB root password: "  mongo_root_password
 echo ""
+read -p    "Enter MongoDB user name: "      mongo_user_name
 read -s -p "Enter MongoDB user password: "  mongo_user_password
 echo ""
 
-read -s -p "Enter RabbitMQ root password: " rabbitmq_root_password
-echo ""
+read -p    "Enter RabbitMQ user name: "     rabbitmq_user_name
 read -s -p "Enter RabbitMQ user password: " rabbitmq_user_password
-
+echo ""
 
 echo "Creating Docker .env file..."
 
@@ -68,7 +69,7 @@ INTERNAL_MASK=${internal_mask}
 EXTERNAL_IP=${external_ip}
 EXTERNAL_MASK=${external_mask}
 
-SQL_USER=root
+SQL_USER=${mysql_user_name}
 SQL_PASS=${mysql_user_password}
 SQL_ROOT_PASS=${mysql_root_password}
 SQL_HOST=${sql_host}
@@ -80,12 +81,11 @@ MONGO_ROOT_PASS=${mongo_root_password}
 MONGO_HOST=${mongo_host}
 MONGO_PORT=27017
 MONGO_REPL_SET_NAME=mongoreplicaset1
-MONGO_INITDB_USER=admin
+MONGO_INITDB_USER=${mongo_user_name}
 MONGO_INITDB_NAME=admin
 
-RABBIT_USER=root
+RABBIT_USER=${rabbitmq_user_name}
 RABBIT_PASS=${rabbitmq_user_password}
-RABBIT_ROOT_PASS=${rabbitmq_root_password}
 RABBIT_HOST=${rabbit_host}
 EOF
 
@@ -94,9 +94,29 @@ echo "Creating Docker .env file complete!"
 
 echo "Creating MongoDB keyFile..."
 
-if [[ ! -d "mongodb/init" ]]; then mkdir -p mongodb/init; fi
-if [[ ! -d "mongodb/data" ]]; then mkdir -p mongodb/data; fi
-if [[ ! -d "mognodb/backup" ]]; then mkdir -p mongodb/backup; fi
+if [[ ! -d "mongodb/data" ]]; then mkdir -p mongodb/data
+else
+    # We want Y/N only
+    answer=-1
+    while [[ ! ${answer,,} =~ ^y(es)?$ && ! ${answer,,} =~ ^n(o)?$ ]]; do
+        read -p "Do you want to delete MongoDB data directory? (Y/N): " answer
+    done
+    if [[ ${answer,,} =~ ^y(es)?$ ]]; then sudo rm -rf mongodb/data; fi
+
+    mkdir mongodb/data
+fi
+
+if [[ ! -d "mongodb/backup" ]]; then mkdir -p mongodb/backup
+else
+    # We want Y/N only
+    answer=-1
+    while [[ ! ${answer,,} =~ ^y(es)?$ && ! ${answer,,} =~ ^n(o)?$ ]]; do
+        read -p "Do you want to delete MongoDB backup directory? (Y/N): " answer
+    done
+    if [[ ${answer,,} =~ ^y(es)?$ ]]; then sudo rm -rf mongodb/backup; fi
+
+    mkdir mongodb/backup
+fi
 
 cat << EOF > mongodb/data/mongod.conf
 storage:
@@ -128,7 +148,7 @@ echo "Initialising databases..."
 
 cat << EOF > mongodb/init/create_temp_admin.js
 db.createUser({
-    user: 'admin',
+    user: '${mongo_user_name}',
     pwd: '${mongo_user_password}',
     roles: [{role: 'root', db: 'admin'}]
 });
@@ -150,9 +170,32 @@ rs.initiate({
 });
 EOF
 
-if [[ ! -d "mariadb/data" ]]; then mkdir -p mariadb/data; fi
-if [[ ! -d "mariadb/backup" ]]; then mkdir -p mariadb/backup; fi
+if [[ ! -d "mariadb/data" ]]; then mkdir -p mariadb/data
+else
+    # We want Y/N only
+    answer=-1
+    while [[ ! ${answer,,} =~ ^y(es)?$ && ! ${answer,,} =~ ^n(o)?$ ]]; do
+      read -p "Do you want to delete MariaDB data directory? (Y/N): " answer
+    done
+    if [[ ${answer,,} =~ ^y(es)?$ ]]; then sudo rm -rf mariadb/data; fi
+
+    mkdir mariadb/data
+fi
+
+if [[ ! -d "mariadb/backup" ]]; then mkdir -p mariadb/backup
+else
+    # We want Y/N only
+    answer=-1
+    while [[ ! ${answer,,} =~ ^y(es)?$ && ! ${answer,,} =~ ^n(o)?$ ]]; do
+      read -p "Do you want to delete MariaDB backup directory? (Y/N): " answer
+    done
+    if [[ ${answer,,} =~ ^y(es)?$ ]]; then sudo rm -rf mariadb/backup; fi
+
+    mkdir mariadb/backup
+fi
+
 if [[ ! -d "mariadb/migration" ]]; then mkdir -p mariadb/migration; fi
+
 
 if [[ "$(docker ps -aqf name=mariadb)" ]]; then
     docker rm -f mariadb
@@ -161,7 +204,7 @@ else
     docker-compose -f docker/docker-compose.yml up -d mariadb
 fi
 
-sleep 5
+sleep 15
 
 if [[ "$(docker ps -aqf name=mongodb)" ]]; then
     docker rm -f mongodb
@@ -172,6 +215,11 @@ fi
 
 sleep 15
 cd mongodb
+chmod +x init.sh
+bash init.sh
+cd ..
+
+cd mariadb
 chmod +x init.sh
 bash init.sh
 cd ..
